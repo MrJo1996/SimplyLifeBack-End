@@ -1,0 +1,394 @@
+<?php
+
+class DBUtenti
+{
+    //Variabili di classe
+    private $connection;
+    private $tabelleDB = [ //Array di tabelle del db
+        "utente", //0
+        "categoria", //1
+        "scadenza" //2
+    ];
+
+    private $campiTabelleDB = [ //Campi delle tabelle (array bidimensionale indicizzato con key)
+        "utente" => [
+            "codice_utente",
+            "email",
+            "password",
+            "nome",
+            "cognome",
+            "attivo"
+        ],
+        "categoria" => [
+            "codice_categoria",
+            "nome_categoria"
+        ],
+        "scadenza" => [
+            "codice_scadenza",
+            "nome",
+            "data_ricezione",
+            "data_scadenza",
+            "periodo",
+            "cod_categoria",
+            "cod_utente",
+            "importo",
+            "confermato"
+        ]
+    ];
+
+    //Costruttore
+    public function __construct()
+    {
+        //Setup della connessione con il DB
+        $db = new DBConnectionManager();
+        $this->connection = $db->runConnection();
+    }
+
+    //---- METODI PER GESTIRE LE QUERY ----
+
+    //Funzione di accesso
+    public function login($email, $password)
+    {
+        $utenteTab = $this->tabelleDB[0];
+        $campi = $this->campiTabelleDB[$utenteTab];
+        $attivo = 1;
+        /*query: "SELECT matricola, nome, cognome, email, 'studente' as tabella FROM studente WHERE email = ? AND password = ? AND attivo = 1*/
+        $query = (
+            "SELECT " .
+            $campi[1] . ", " .
+            $campi[3] . ", " .
+            $campi[4] . " " .
+            "'" . $utenteTab . "' as tabella " .
+            "FROM " .
+            $utenteTab . " " .
+            "WHERE " .
+            $campi[1] . " = ? AND " .
+            $campi[2] . " = ? AND " .
+            $campi[5] . " = ? "
+        );
+
+        //Invio la query
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("ssi", $email, $password, $attivo); //ss se sono 2 stringhe, ssi 2 string e un int (sostituisce ? della query)
+        $stmt->execute();
+        //Ricevo la risposta del DB
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result($email, $nome, $cognome, $table);
+            $utente = array();
+
+            while ($stmt->fetch()) {
+                $temp = array();
+                $temp[$campi[1]] = $email;
+                $temp[$campi[3]] = $nome;
+                $temp[$campi[4]] = $cognome;
+                $temp["tabella"] = $table;
+                array_push($utente, $temp);
+            }
+
+            return $utente;
+
+        } else { //Se non ci sono risultati
+            return null;
+        }
+    }
+
+    //Funzione di recupero - Controlla se esiste la mail di cui recuperare la psw
+    public function recupero($email)
+    {
+        $utenteTab = $this->tabelleDB[0]; //Tabella per la query
+        $campi = $this->campiTabelleDB[$utenteTab];
+        /*  query: "SELECT email FROM utente WHERE email = ? */
+        $query = (
+            "SELECT " .
+            $campi[1] . " " .
+            "FROM " .
+            $utenteTab . " " .
+            "WHERE " .
+            $campi[1] . " = ? "
+        );
+        //Invio la query
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        //Ricevo la risposta del DB
+        $stmt->store_result();
+        //Controllo se ha trovato matching tra dati inseriti e campi del db
+        return $stmt->num_rows > 0;
+    }
+
+    /*// Funzione conferma Profilo (Andrea)
+    public function confermaProfilo($email, $matricola)
+    {
+        $stringHelper = new StringHelper();
+        $substr = $stringHelper->subString($email);
+        $tabella = $this->tabelleDB[6];
+        if ($substr == "unimol") {
+            $tabella = $this->tabelleDB[2];
+        }
+        $campi = $this->campiTabelleDB[$tabella];
+        //query:  "UPDATE docente/studente SET attivo = true WHERE matricola = ?"
+        $query = (
+            "UPDATE " .
+            $tabella . " " .
+            "SET " .
+            $campi[5] . " = 1 " .
+            "WHERE " .
+            $campi[0] . " = ?"
+        );
+        //Invio la query
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("s", $matricola); //ss se sono 2 stringhe, ssi 2 string e un int (sostituisce ? della query)
+        return ($stmt->execute());
+    }*/
+
+    // Funzione registrazione
+    public function registrazione($email, $password, $nome, $cognome)
+    {
+        $tabella = $this->tabelleDB[0];
+        $campi = $this->campiTabelleDB[$tabella];
+        $attivo = 0;
+
+        $query = (
+            "INSERT INTO " .
+            $tabella . " (" .
+            $campi[1] . ", " .
+            $campi[2] . ", " .
+            $campi[3] . ", " .
+            $campi[4] . ", " .
+            $campi[5] . ") " .
+
+            "VALUES (?,?,?,?,?)"
+        );
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("ssssi", $email, $password, $nome, $cognome, $attivo); //ss se sono 2 stringhe, ssi 2 string e un int (sostituisce ? della query)
+        $result = ($stmt->execute()) /*? 1 : 2   CONTROLLARE SE SERVE O MENO*/
+        ;
+        return $result;
+    }
+
+    //Funzione rimuovi scadenza
+    public function rimuoviScadenza($codice_scadenza)
+    {
+        $tabella = $this->tabelleDB[2]; //Tabella per la query
+        $campi = $this->campiTabelleDB[$tabella];
+        //query:  " DELETE FROM SCADENZA WHERE ID = $codice_scadenza"
+
+        $query = (
+            "DELETE FROM " .
+            $tabella . " WHERE " .
+            $campi[0] . " = ? "
+        );
+
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("i", $codice_scadenza);
+        $result = $stmt->execute();
+        $stmt->store_result();
+
+        return $result;
+    }
+
+    //Funzione conferma scadenza
+    public function confermaPagamentoScadenza($codice_scadenza)
+    {
+        $tabella = $this->tabelleDB[2]; //Tabella per la query
+        $campi = $this->campiTabelleDB[$tabella];
+
+        //UPDATE Person SET given_names = 'Stefano' WHERE ID = 4
+
+        $query = (
+            "UPDATE " .
+            $tabella .
+            " SET " .
+            $campi[8] . " = 1 " .
+            " WHERE " .
+            $campi[0] . " = ? "
+        );
+
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("i", $codice_scadenza);
+        $result = $stmt->execute();
+        $stmt->store_result();
+
+        return $result;
+    }
+
+    //Funzione conferma scadenza
+    public function annullaPagamentoScadenza($codice_scadenza)
+    {
+        $tabella = $this->tabelleDB[2]; //Tabella per la query
+        $campi = $this->campiTabelleDB[$tabella];
+
+        //UPDATE Person SET given_names = 'Stefano' WHERE ID = 4
+
+        $query = (
+            "UPDATE " .
+            $tabella .
+            " SET " .
+            $campi[8] . " = 0 " .
+            " WHERE " .
+            $campi[0] . " = ? "
+        );
+
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("i", $codice_scadenza);
+        $result = $stmt->execute();
+        $stmt->store_result();
+
+        return $result;
+    }
+
+    //Funzione visualizza scadenze del determinato utente in ordine cronologico
+    public function visualizzaScadenzaPerData($cod_utente)
+    {
+        $tabella = $this->tabelleDB[2]; //Tabella per la query (Scadenza)
+        $tabella1 = $this->tabelleDB[1]; //Tabella per la query (Categ)
+
+        $campi = $this->campiTabelleDB[$tabella];
+        $campi1 = $this->campiTabelleDB[$tabella1];
+
+        //query= SELECT nome,data_ric,data_scad,categ,periodo,importo FROM scadenza WHERE cod_utente=$cod_utente
+        $query = (
+            "SELECT " .
+            $campi[1] . ", " .
+            $campi[2] . ", " .
+            $campi[3] . ", " .
+            $campi[4] . ", " .
+            $campi[5] . " " .
+            $campi[7] . " " .
+            "FROM " .
+            $tabella . " " .
+            "WHERE " .
+            $campi[6] . " = ? " .
+            "ORDER BY " .
+            $campi[3] . //in ordine crescente in base alla data di scadenza
+            "UNION " .
+            "SELECT " .
+            $campi1[1] . ", " .
+            NULL . ", " .
+            NULL . ", " .
+            NULL . ", " .
+            NULL . ", " .
+            NULL . " " .
+            "FROM " .
+            $tabella1 . " " .
+            "WHERE " .
+            $campi[5] . " = " .
+            $campi1[0]
+        );
+
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("i", $cod_utente);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
+            //Salvo il risultato della query in alcune variabili che andranno a comporre l'array temp //
+            $stmt->bind_result($nome, $data_ricezione, $data_scadenza, $periodo, $nome_categoria, $importo);
+            $scadenza = array();
+            while ($stmt->fetch()) { //Scansiono la risposta della query
+
+                $temp = array(); //Array temporaneo per l'acquisizione dei dati
+
+                //Indicizzo con key i dati nell'array
+                $temp[$campi[1]] = $nome;
+                $temp[$campi[2]] = $data_ricezione;
+                $temp[$campi[3]] = $data_scadenza;
+                $temp[$campi[4]] = $periodo;
+                $temp[$campi[5]] = $nome_categoria;
+                $temp[$campi[7]] = $importo;
+
+                array_push($scadenza, $temp); //Inserisco l'array $temp all'ultimo posto dell'array $scad
+            }
+            return $scadenza; //ritorno array scad riempito con i risultati della query effettuata.
+        } else {
+            return null;
+        }
+    }
+
+    public function modificaPassword($email, $password)
+    {
+        $password = hash('sha256', $password);
+        $tabella = $this->tabelleDB[0];
+
+        $campi = $this->campiTabelleDB[$tabella];
+        //query:  "UPDATE TABLE SET password = ? WHERE email = ?"
+        $query = (
+            "UPDATE " .
+            $tabella . " " .
+            "SET " .
+            $campi[2] . " = ? " .
+            "WHERE " .
+            $campi[1] . " = ?"
+        );
+        //Invio la query
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("ss", $password, $email);
+        return $stmt->execute();
+    }
+
+    public function visualizzaNomeUtente($codice_utente)
+    {
+        $tabella = $this->tabelleDB[0];
+        $campi = $this->campiTabelleDB[$tabella];
+        $query = //query: "SELECT id, nome FROM utenti"
+            "SELECT " .
+            $campi[0] . " " .
+            "FROM " .
+            $tabella . " " .
+            "WHERE " . $campi[0] . " = ?";
+
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("i", $codice_utente);
+        $stmt->execute();
+        $stmt->store_result();
+
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result($nome);
+
+            $utenti = array();
+            while ($stmt->fetch()) { //Scansiono la risposta della query
+                $temp = array(); //Array temporaneo per l'acquisizione dei dati
+                //Indicizzo con key i dati nell'array
+                $temp[$campi[0]] = $nome;
+                array_push($utenti, $temp); //Inserisco l'array $temp all'ultimo posto dell'array $cdl
+            }
+            return $utenti;
+        } else return null;
+    }
+
+    public function modificaScadenza($codice_scadenza, $nome, $data_ricezione, $data_scadenza, $periodo, $importo)
+    {
+        $tabella = $this->tabelleDB[2];
+        $campi = $this->campiTabelleDB[$tabella];
+        //query:  "UPDATE TABLE SET nome = ?, data_ricezione = ?, data_scadenza = ? WHERE  = ?"
+        $query = (
+            "UPDATE " .
+            $tabella . " " .
+            "SET " .
+            $campi[1] . " = ?, " .
+            $campi[2] . " = ?, " .
+            $campi[3] . " = ? " .
+            $campi[4] . " = ? " .
+            $campi[7] . " = ? " .
+            "WHERE " .
+            $campi[0] . " = ?"
+        );
+        //Invio la query
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("isssif", $codice_scadenza, $nome, $data_ricezione, $data_scadenza, $periodo, $importo);
+
+        $result = $stmt->execute();
+
+        //Controllo se ha trovato matching tra dati inseriti e campi del db
+        return $result;
+    }
+
+    /*PER LA LOGOUT, NON SERVE IL SERVIZIO NEL BACK-END MA DIRETTAMENTE DALLA FOLDER DELL'APP
+    * <?php
+    session_start();
+    session_destroy();
+    header("location: ./login.php");
+    ?>*/
+}
+
+?>
