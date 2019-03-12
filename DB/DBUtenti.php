@@ -114,17 +114,13 @@ class DBUtenti
         return $stmt->num_rows > 0;
     }
 
-    /*// Funzione conferma Profilo (Andrea)
-    public function confermaProfilo($email, $matricola)
+    // Funzione conferma Profilo
+    public function confermaProfilo($email, $cod_utente)
     {
-        $stringHelper = new StringHelper();
-        $substr = $stringHelper->subString($email);
-        $tabella = $this->tabelleDB[6];
-        if ($substr == "unimol") {
-            $tabella = $this->tabelleDB[2];
-        }
+        $tabella = $this->tabelleDB[0];
+
         $campi = $this->campiTabelleDB[$tabella];
-        //query:  "UPDATE docente/studente SET attivo = true WHERE matricola = ?"
+        //query:  "UPDATE utente SET attivo = true WHERE cod_utente = ?"
         $query = (
             "UPDATE " .
             $tabella . " " .
@@ -135,9 +131,9 @@ class DBUtenti
         );
         //Invio la query
         $stmt = $this->connection->prepare($query);
-        $stmt->bind_param("s", $matricola); //ss se sono 2 stringhe, ssi 2 string e un int (sostituisce ? della query)
+        $stmt->bind_param("s", $cod_utente); //s se è 1 stringhe(sostituisce ? della query)
         return ($stmt->execute());
-    }*/
+    }
 
     // Funzione registrazione
     public function registrazione($email, $password, $nome, $cognome)
@@ -409,7 +405,120 @@ class DBUtenti
     session_destroy();
     header("location: ./login.php");
     ?>*/
-}
+    //VISUALIZZA CATEOGORIE
+    public function visualizzaCateogorie()
+    {
+        $tabella = $this->tabelleDB[1]; //Tabella per la query
+        $campi = $this->campiTabelleDB[$tabella];
+        $query = //query: "SELECT nome, FROM categoria
+            "SELECT " .
+            $campi[0] . ", " .
+            $campi[1] . " " .
+            "FROM " .
+            $tabella . " " ;
+        $stmt = $this->connection->prepare($query);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result($codice_categoria, $nome_categoria);
+            $categorie = array();
+            while ($stmt->fetch()) { //Scansiono la risposta della query
+                $temp = array();
+                //Indicizzo con key i dati nell'array
+                $temp[$campi[0]] = $codice_categoria;
+                $temp[$campi[1]] = $nome_categoria;
+                array_push($categorie, $temp); //Inserisco l'array $temp all'ultimo posto dell'array $categorie
+            }
+            return $categorie; //ritorno array $categorie riempito con i risultati della query effettuata.
+        } else {
+            return null;
+        }
+    }
 
-//
+    //VISUALIZZA SCADENZE PER CATEGORIA
+    public function visualizzaScadenzePerCategoria($Categoria)
+    {
+        $scadenzeTab = $this->tabelleDB[2];
+        $campiScadenza = $this->campiTabelleDB[$scadenzeTab];
+        $categorieTab = $this->tabelleDB[1];
+        $campiCategoria = $this->campiTabelleDB[$categorieTab];
+        //query: SELECT scadenza.nome,scadenza.data_ricezione,scadenza.data_scadenza,scadenza.periodo, scadenza.importo,scadenza.confermato FROM scadenza Inner join categoria ON scadenza.cod_categoria = categoria.codice_categoria Where categoria.nome_categoria = "?" AND categoria.codice_categoria=scadenza.cod_materia"
+        $query = (
+            "SELECT " .
+            $scadenzeTab.".". $campiScadenza[1] . ", " .
+            $scadenzeTab.".".$campiScadenza[2] . ", " .
+            $scadenzeTab.".".$campiScadenza[3] . ", " .
+            $scadenzeTab.".".$campiScadenza[4] . ", " .
+            $scadenzeTab.".".$campiScadenza[7] . ", " .
+            $scadenzeTab.".".$campiScadenza[8] . " " .
+            "FROM ".$scadenzeTab." ".
+            "Inner join " .
+            $categorieTab . " " .
+            "ON " .
+            $scadenzeTab.".".$campiScadenza[5] . " = " .
+            $categorieTab.".".$campiCategoria[0].
+            " WHERE " . $categorieTab.".".$campiCategoria[1] . '= ? '
+        );
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("s", $Categoria);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result( $nome, $data_ric, $data_scad, $periodo, $importo, $confermato);
+            $scadenza = array();
+            while ($stmt->fetch()) { //Scansiono la risposta della query
+                $temp = array();
+                //Indicizzo con key i dati nell'array
+                $temp[$campiScadenza[1]] = $nome;
+                $temp[$campiScadenza[2]] = $data_ric;
+                $temp[$campiScadenza[3]] = $data_scad;
+                $temp[$campiScadenza[4]] = $periodo;
+                $temp[$campiScadenza[7]] = $importo;
+                $temp[$campiScadenza[8]] = $confermato;
+                array_push($scadenza, $temp); //Inserisco l'array $temp all'ultimo posto dell'array $scadenza
+            }
+            return $scadenza; //ritorno array $scadenza riempito con i risultati della query effettuata.
+        } else {
+            return null;
+        }
+    }
+
+    public function visualizzaImportoPerCodice($codice_scadenza)
+    {
+        $tabella = $this->tabelleDB[2];
+        $campi = $this->campiTabelleDB[$tabella];
+        $query = (
+            "SELECT" .
+            $campi[8] . " " .
+            "FROM".
+            $tabella ."".
+            "WHERE".
+            $campi[0] = $codice_scadenza
+        );
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("i", $importo);
+        $result = ($stmt->execute())
+        ;
+        return $result;
+    }
+
+    public function visualizzaPeriodoPerCodice($codice_scadenza)
+    {
+        $tabella = $this->tabelleDB[2];
+        $campi = $this->campiTabelleDB[$tabella];
+        $query = (
+            "SELECT" .
+            $campi[5] . " " .
+            "FROM".
+            $tabella ."".
+            "WHERE".
+            $campi[0] = $codice_scadenza
+        );
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("i", $periodo);
+        $result = ($stmt->execute())
+        ;
+        return $result;
+    }
+}
 ?>
