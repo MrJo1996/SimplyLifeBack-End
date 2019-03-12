@@ -350,6 +350,36 @@ class DBUtenti
         } else return null;
     }
 
+    public function visualizzaPagamento($codice_scadenza)
+    {
+        $tabella = $this->tabelleDB[2];
+        $campi = $this->campiTabelleDB[$tabella];
+        $query = //query: "SELECT id, nome FROM utenti"
+            "SELECT " .
+            $campi[8] . " " .
+            "FROM " .
+            $tabella . " " .
+            "WHERE " . $campi[0] . " = ?";
+
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("i", $codice_scadenza);
+        $stmt->execute();
+        $stmt->store_result();
+
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result($scadenz);
+
+            $scadenza = array();
+            while ($stmt->fetch()) { //Scansiono la risposta della query
+                $temp = array(); //Array temporaneo per l'acquisizione dei dati
+                //Indicizzo con key i dati nell'array
+                $temp[$campi[0]] = $scadenz;
+                array_push($scadenza, $temp); //Inserisco l'array $temp all'ultimo posto dell'array $cdl
+            }
+            return $scadenza;
+        } else return null;
+    }
+
     public function modificaScadenza($codice_scadenza, $nome, $data_ricezione, $data_scadenza, $periodo, $importo)
     {
         $tabella = $this->tabelleDB[2];

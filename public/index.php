@@ -390,6 +390,31 @@ $app->post('/visualizzanomeutente', function (Request $request, Response $respon
     return $response->withJson($responseData); //Invio la risposta del servizio REST al client
 });
 
+$app->post('/visualizzapagamento', function (Request $request, Response $response) {
+
+    $db = new DBUtenti();
+
+    $requestData = $request->getParsedBody();//Dati richiesti dal servizio REST
+    $codice_scadenza = $requestData['codice_scadenza'];
+
+//Controllo la risposta dal DB e compilo i campi della risposta
+    $responseData = $db->visualizzaPagamento($codice_scadenza);
+    if ($responseData != null) {
+        $responseData['error'] = false; //Campo errore = false
+        $responseData['message'] = 'Elemento visualizzato con successo'; //Messaggio di esiso positivo
+
+        $response->getBody()->write(json_encode(array("Scadenza" => $responseData)));
+        //Definisco il Content-type come json, i dati sono strutturati e lo dichiaro al browser
+        $newResponse = $response->withHeader('Content-type', 'application/json');
+        return $newResponse; //Invio la risposta del servizio REST al client
+
+    } else {
+        $responseData['error'] = true; //Campo errore = true
+        $responseData['message'] = 'Errore imprevisto'; //Messaggio di esiso negativo
+    }
+    return $response->withJson($responseData); //Invio la risposta del servizio REST al client
+});
+
 
 // endpoint: /inserisci scadenza
 $app->post('/inserisciscadenza', function (Request $request, Response $response) {
