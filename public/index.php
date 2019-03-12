@@ -32,7 +32,7 @@ if (PHP_SAPI == 'cli-server') {
     }
 }
 
-// Instantiate the app
+// Instantiate the app -
 $settings = require __DIR__ . '/../src/settings.php';
 $app = new App($settings); //"Contenitore" per gli endpoint da riempire
 
