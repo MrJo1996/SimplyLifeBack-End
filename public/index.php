@@ -18,7 +18,7 @@ require_once '../vendor/autoload.php';
 require '../DB/DBConnectionManager.php';
 require '../DB/DBUtenti.php';
 
-require '../Helper/EmailHelper/EmailHelper.php';
+/*require '../Helper/EmailHelper/EmailHelper.php';*/
 require '../Helper/EmailHelper/EmailHelperAltervista.php';
 require '../Helper/RandomPasswordHelper/RandomPasswordHelper.php';
 
@@ -61,7 +61,7 @@ $app->add(function ($req, $res, $next) {
 
     app->"richiesta http"('/nome endpoint', function (Request "dati inviati dal client", Response "dati risposti dal server") {
 
-        //logica del servizio
+        //logica del servizio  ---- (COME SI FA IL JS)
 
         return "risposta";
 
@@ -72,10 +72,10 @@ $app->add(function ($req, $res, $next) {
 /*************** LISTA DI ENDPOINT ***************/
 
 /* aggiungo ad $app tutta la lista di endpoint che voglio */
+
 /**** ENDPOINT DEL PROGETTO ****/
 
-
-// endpoint: /login (Andrea) OK
+// endpoint: /login
 $app->post('/login', function (Request $request, Response $response) {
     $db = new DBUtenti();
 
@@ -91,7 +91,7 @@ $app->post('/login', function (Request $request, Response $response) {
     if ($utente) { //Se l'utente esiste ed e' corretta la password
         $responseData['error'] = false; //Campo errore = false
         $responseData['message'] = 'Accesso effettuato'; //Messaggio di esiso positivo
-        $responseData['utente'] = $utente[0];
+        $responseData['utente'] = $utente[0]; //CAPIRE A COSA SERVE
 
     } else { //Se le credenziali non sono corrette
         $responseData['error'] = true; //Campo errore = true
@@ -100,22 +100,23 @@ $app->post('/login', function (Request $request, Response $response) {
     return $response->withJson($responseData); //Invio la risposta del servizio REST al client
 });
 
-// endpoint: /registration (Francesco) OK
+// endpoint: /registration
 $app->post('/registrazione', function (Request $request, Response $response) {
+
     $db = new DBUtenti();
 
     $requestData = $request->getParsedBody();//Dati richiesti dal servizio REST
-    $matricola = $requestData['matricola'];
-    $nome = $requestData['nome'];
-    $cognome = $requestData['cognome'];
+
     $email = $requestData['email'];
     $password = $requestData['password'];
-    $cds = $requestData['cds'];
+    $nome = $requestData['nome'];
+    $cognome = $requestData['cognome'];
+
     //Risposta del servizio REST
     $responseData = array(); //La risposta e' un array di informazioni da compilare
 
     //Controllo la risposta dal DB e compilo i campi della risposta
-    $responseDB = $db->registrazione($matricola, $nome, $cognome, $email, $password, $cds);
+    $responseDB = $db->registrazione($email, $password, $nome, $cognome);
     if ($responseDB == 1) { //Se la registrazione è andata a buon fine
         $responseData['error'] = false; //Campo errore = false
         $responseData['message'] = 'Registrazione avvenuta con successo'; //Messaggio di esito positivo
@@ -125,12 +126,11 @@ $app->post('/registrazione', function (Request $request, Response $response) {
     } else if ($responseDB == 2) { //Se l'email è già presente nel DB
         $responseData['error'] = true; //Campo errore = true
         $responseData['message'] = 'Account già  esistente!'; //Messaggio di esito negativo
-    } else {//Se l'email non è istituzionale
-        $responseData['error'] = true; //Campo errore = true
-        $responseData['message'] = "Email non valida! Usare un'email istituzionale."; //Messaggio di esito negativo
     }
+
     return $response->withJson($responseData); //Invio la risposta del servizio REST al client
 });
+
 
 /****** PER ORA NON FUNZIONA COL L'ENDPOINT MA TRAMITE LINK DIRETTO COL FILE ACRTIVATE.PHP NELLA CARTELLA PUBLIC ***/
 // endpoint: /conferma (Andrea)
