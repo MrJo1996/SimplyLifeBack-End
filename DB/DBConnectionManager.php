@@ -7,7 +7,7 @@ class DBConnectionManager
     private $host = "localhost";
     private $username = "simplylife";
     private $passwd = "";
-    private $dbname = "my_simplylife";
+    private $dbname = "simplylife";
 
     function runConnection()
     {
@@ -15,5 +15,4 @@ class DBConnectionManager
         return $this->connection;
     }
 }
-
 ?>

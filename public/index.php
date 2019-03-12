@@ -121,7 +121,7 @@ $app->post('/registrazione', function (Request $request, Response $response) {
         $responseData['error'] = false; //Campo errore = false
         $responseData['message'] = 'Registrazione avvenuta con successo'; //Messaggio di esito positivo
         $emailSender = new EmailHelperAltervista();
-        $link = 'http://unimolshare.altervista.org/logic/UnimolShare/public/activate.php?email=' . $email . '&matricola=' . $matricola;
+        $link = 'http://unimolshare.altervista.org/logic/UnimolShare/public/activate.php?email=' . $email;
         $emailSender->sendConfermaAccount($email, $link);
     } else if ($responseDB == 2) { //Se l'email è già presente nel DB
         $responseData['error'] = true; //Campo errore = true
