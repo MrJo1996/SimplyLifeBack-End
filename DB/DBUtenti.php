@@ -52,7 +52,6 @@ class DBUtenti
         $utenteTab = $this->tabelleDB[0];
         $campi = $this->campiTabelleDB[$utenteTab];
 
-
         $query = (
             "SELECT " .
             $campi[0] . ", " .
@@ -69,7 +68,7 @@ class DBUtenti
         $stmt = $this->connection->prepare($query);
         $stmt->bind_param("ss", $email, $password); //ss se sono 2 stringhe, ssi 2 string e un int (sostituisce ? della query)
         $stmt->execute();
-        echo $query;
+        echo $query; //stampa query
         //Ricevo la risposta del DB
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
@@ -248,15 +247,15 @@ class DBUtenti
             $campi[2] . ", " .
             $campi[3] . ", " .
             $campi[4] . ", " .
-            $campi[5] . " " .
+            $campi[5] . ", " .
             $campi[7] . " " .
             "FROM " .
             $tabella . " " .
             "WHERE " .
             $campi[6] . " = ? " .
             "ORDER BY " .
-            $campi[3] . //in ordine crescente in base alla data di scadenza
-            "UNION " .
+            $campi[3] /*. //in ordine crescente in base alla data di scadenza
+            " UNION " .
             "SELECT " .
             $campi1[1] . ", " .
             NULL . ", " .
@@ -268,14 +267,17 @@ class DBUtenti
             $tabella1 . " " .
             "WHERE " .
             $campi[5] . " = " .
-            $campi1[0]
+            $campi1[0]*/
         );
+
+        echo $query;
 
         $stmt = $this->connection->prepare($query);
         $stmt->bind_param("i", $cod_utente);
         $stmt->execute();
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
+            echo "num_rows > 0";
             //Salvo il risultato della query in alcune variabili che andranno a comporre l'array temp //
             $stmt->bind_result($nome, $data_ricezione, $data_scadenza, $periodo, $nome_categoria, $importo);
             $scadenza = array();
@@ -326,7 +328,7 @@ class DBUtenti
         $campi = $this->campiTabelleDB[$tabella];
         $query = //query: "SELECT id, nome FROM utenti"
             "SELECT " .
-            $campi[0] . " " .
+            $campi[3] . " " .
             "FROM " .
             $tabella . " " .
             "WHERE " . $campi[0] . " = ?";
@@ -343,7 +345,7 @@ class DBUtenti
             while ($stmt->fetch()) { //Scansiono la risposta della query
                 $temp = array(); //Array temporaneo per l'acquisizione dei dati
                 //Indicizzo con key i dati nell'array
-                $temp[$campi[0]] = $nome;
+                $temp[$campi[3]] = $nome;
                 array_push($utenti, $temp); //Inserisco l'array $temp all'ultimo posto dell'array $cdl
             }
             return $utenti;
@@ -407,7 +409,7 @@ class DBUtenti
         return $result;
     }
 
-    public function inserisciScadenza($nome, $data_ricezione, $data_scadenza, $periodo, $codice_categoria, $importo)
+    public function inserisciScadenza($nome, $data_ricezione, $data_scadenza, $periodo, $cod_categoria, $cod_utente, $importo)
     {
         $tabella = $this->tabelleDB[2]; //Tabella per la query
         $campi = $this->campiTabelleDB[$tabella];
@@ -420,12 +422,13 @@ class DBUtenti
             $campi[3] . ", " .
             $campi[4] . ", " .
             $campi[5] . ", " .
+            $campi[6] . ", " .
             $campi[7] . " ) " .
 
-            "VALUES (?,?,?,?,?)"
+            "VALUES (?,?,?,?,?,?)"
         );
         $stmt = $this->connection->prepare($query);
-        $stmt->bind_param("sssiif", $nome, $data_ricezione, $data_scadenza, $periodo, $codice_categoria, $importo);
+        $stmt->bind_param("sssiiif", $nome, $data_ricezione, $data_scadenza, $periodo, $cod_categoria, $cod_utente, $importo);
         return $stmt->execute();
     }
 
@@ -436,7 +439,7 @@ class DBUtenti
     header("location: ./login.php");
     ?>*/
     //VISUALIZZA CATEOGORIE
-    public function visualizzaCateogorie()
+    public function visualizzaCategorie()
     {
         $tabella = $this->tabelleDB[1]; //Tabella per la query
         $campi = $this->campiTabelleDB[$tabella];
@@ -445,7 +448,7 @@ class DBUtenti
             $campi[0] . ", " .
             $campi[1] . " " .
             "FROM " .
-            $tabella . " " ;
+            $tabella . " ";
         $stmt = $this->connection->prepare($query);
         $stmt->execute();
         $stmt->store_result();
@@ -475,26 +478,26 @@ class DBUtenti
         //query: SELECT scadenza.nome,scadenza.data_ricezione,scadenza.data_scadenza,scadenza.periodo, scadenza.importo,scadenza.confermato FROM scadenza Inner join categoria ON scadenza.cod_categoria = categoria.codice_categoria Where categoria.nome_categoria = "?" AND categoria.codice_categoria=scadenza.cod_materia"
         $query = (
             "SELECT " .
-            $scadenzeTab.".". $campiScadenza[1] . ", " .
-            $scadenzeTab.".".$campiScadenza[2] . ", " .
-            $scadenzeTab.".".$campiScadenza[3] . ", " .
-            $scadenzeTab.".".$campiScadenza[4] . ", " .
-            $scadenzeTab.".".$campiScadenza[7] . ", " .
-            $scadenzeTab.".".$campiScadenza[8] . " " .
-            "FROM ".$scadenzeTab." ".
+            $scadenzeTab . "." . $campiScadenza[1] . ", " .
+            $scadenzeTab . "." . $campiScadenza[2] . ", " .
+            $scadenzeTab . "." . $campiScadenza[3] . ", " .
+            $scadenzeTab . "." . $campiScadenza[4] . ", " .
+            $scadenzeTab . "." . $campiScadenza[7] . ", " .
+            $scadenzeTab . "." . $campiScadenza[8] . " " .
+            "FROM " . $scadenzeTab . " " .
             "Inner join " .
             $categorieTab . " " .
             "ON " .
-            $scadenzeTab.".".$campiScadenza[5] . " = " .
-            $categorieTab.".".$campiCategoria[0].
-            " WHERE " . $categorieTab.".".$campiCategoria[1] . '= ? '
+            $scadenzeTab . "." . $campiScadenza[5] . " = " .
+            $categorieTab . "." . $campiCategoria[0] .
+            " WHERE " . $categorieTab . "." . $campiCategoria[1] . '= ? '
         );
         $stmt = $this->connection->prepare($query);
         $stmt->bind_param("s", $Categoria);
         $stmt->execute();
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
-            $stmt->bind_result( $nome, $data_ric, $data_scad, $periodo, $importo, $confermato);
+            $stmt->bind_result($nome, $data_ric, $data_scad, $periodo, $importo, $confermato);
             $scadenza = array();
             while ($stmt->fetch()) { //Scansiono la risposta della query
                 $temp = array();
@@ -517,18 +520,21 @@ class DBUtenti
     {
         $tabella = $this->tabelleDB[2];
         $campi = $this->campiTabelleDB[$tabella];
+
         $query = (
-            "SELECT" .
-            $campi[8] . " " .
-            "FROM".
-            $tabella ."".
-            "WHERE".
-            $campi[0] = $codice_scadenza
+            "SELECT " .
+            $campi[7] . " " .
+            "FROM " .
+            $tabella . " " .
+            "WHERE " .
+            $campi[0] . " = ?"
         );
+
+        echo $query;
+
         $stmt = $this->connection->prepare($query);
-        $stmt->bind_param("i", $importo);
-        $result = ($stmt->execute())
-        ;
+        $stmt->bind_param("i", $codice_scadenza);
+        $result = ($stmt->execute());
         return $result;
     }
 
@@ -539,16 +545,57 @@ class DBUtenti
         $query = (
             "SELECT" .
             $campi[5] . " " .
-            "FROM".
-            $tabella ."".
-            "WHERE".
-            $campi[0] = $codice_scadenza
+            "FROM" .
+            $tabella . "" .
+            "WHERE" .
+            $campi[0] . " = ?"
         );
         $stmt = $this->connection->prepare($query);
         $stmt->bind_param("i", $periodo);
-        $result = ($stmt->execute())
-        ;
+        $result = ($stmt->execute());
         return $result;
     }
+
+    /* public function visualizzaImportoPerCodice($codice_scadenza)
+     {
+         $table = $this->tabelleDB[2]; //Tabella per la query
+         $campi = $this->campiTabelleDB[$table];
+         $query = //query: "SELECT id, nome FROM cdl"
+             ("SELECT " .
+                 $campi[7] . " " .
+                 "FROM " .
+                 $table . " " .
+                 "WHERE " . $campi[0] . " = ?");
+         $stmt = $this->connection->prepare($query);
+         $stmt->bind_param("i", $codice_scadenza);
+         $stmt->execute();
+
+         $stmt->store_result();
+
+         echo $query;
+
+
+         if ($stmt->num_rows > 0) {
+             $stmt->bind_result($importo);
+             $result = $importo;
+
+             echo $result;
+
+             echo $importo;
+                 while ($stmt->fetch()) { //Scansiono la risposta della query
+                  echo $query;
+                  $temp = array(); //Array temporaneo per l'acquisizione dei dati
+                  //Indicizzo con key i dati nell'array
+                  $temp[$campi[7]] = $importo;
+
+                  array_push($result, $temp); //Inserisco l'array $temp all'ultimo posto dell'array $cdl
+
+              }
+             return $result;
+         } else
+             return null;
+     }*/
+
 }
+
 ?>

@@ -8,7 +8,6 @@
 
 /* In questo file php vengono elencati tutti gli endpoint disponibili al servizio REST */
 
-
 //Importiamo Slim e le sue librerie
 use Slim\App;
 use Slim\Http\Request;
@@ -75,7 +74,7 @@ $app->add(function ($req, $res, $next) {
 
 /**** ENDPOINT DEL PROGETTO ****/
 
-// endpoint: /login
+// endpoint: /login         OK
 $app->post('/login', function (Request $request, Response $response) {
     $db = new DBUtenti();
 
@@ -101,8 +100,7 @@ $app->post('/login', function (Request $request, Response $response) {
 });
 
 
-
-// endpoint: /registrazione
+// endpoint: /registrazione     OK
 $app->post('/registrazione', function (Request $request, Response $response) {
 
     $db = new DBUtenti();
@@ -143,22 +141,22 @@ $app->post('/visualizzaimporto', function (Request $request, Response $response)
 
     $codice_scadenza = $requestData['codice_scadenza'];
 
-    //Risposta del servizio REST
-    $responseData = array(); //La risposta e' un array di informazioni da compilare
-
     //Controllo la risposta dal DB e compilo i campi della risposta
-    $responseDB = $db->visualizzaImportoPerCodice($codice_scadenza);
-    if ($responseDB == 1) { //Se la registrazione è andata a buon fine
-        $responseData['error'] = false; //Campo errore = false
-        $responseData['message'] = 'Nessun errore'; //Messaggio di esito positivo
+    $responseData = $db->visualizzaImportoPerCodice($codice_scadenza);
+
+
+    if ($responseData != null) {
+        $responseData = false; //Campo errore = false
+        $responseData['message'] = 'Elemento visualizzato con successo'; //Messaggio di esiso positivo
         $response->getBody()->write(json_encode(array("importo" => $responseData)));
+        //metto in un json e lo inserisco nella risposta del servizio REST
         //Definisco il Content-type come json, i dati sono strutturati e lo dichiaro al browser
         $newResponse = $response->withHeader('Content-type', 'application/json');
-        return $newResponse;
-    } else if ($responseDB == 2) { //Se la bolletta non è presente nel DB
-        $responseData['error'] = true; //Campo errore = true
-        $responseData['message'] = 'Bolletta non trovata!';
-        return $response->withJson($responseData); //Messaggio di esito negativo
+        return $newResponse; //Invio la risposta del servizio REST al client
+    } else {
+        $responseData['error'] = true; //Campo errore = false
+        $responseData = 'Errore imprevisto';
+        return $response->withJson($responseData);
     }
 });
 
@@ -216,8 +214,7 @@ $app->get('/conferma', function (Request $request, Response $response) {
 });
 
 
-
-// endpoint: /modifica scadenza
+// endpoint: /modificascadenza
 $app->post('/modificascadenza', function (Request $request, Response $response) {
     $db = new DBUtenti();
 
@@ -245,8 +242,7 @@ $app->post('/modificascadenza', function (Request $request, Response $response) 
 });
 
 
-
-//endpoint /recupero password/modifica password
+//endpoint /recupero password/modifica password             OK
 $app->post('/recupero', function (Request $request, Response $response) {
 
     $db = new DBUtenti();
@@ -284,13 +280,13 @@ $app->post('/recupero', function (Request $request, Response $response) {
 });
 
 
-//endpoint /visualizza scadenze per categoria
+//endpoint /visualizza scadenze per categoria       OK
 $app->post('/visualizzascadenzepercategoria', function (Request $request, Response $response) {
 
     $db = new DBUtenti();
 
     $requestData = $request->getParsedBody();//Dati richiesti dal servizio REST
-    $categoria = $requestData['categoria'];
+    $categoria = $requestData['nome_categoria'];
 
 //Controllo la risposta dal DB e compilo i campi della risposta
     $responseData = $db->visualizzaScadenzePerCategoria($categoria);
@@ -312,8 +308,7 @@ $app->post('/visualizzascadenzepercategoria', function (Request $request, Respon
 });
 
 
-
-//endpoint /Visualizza categoria
+//endpoint /Visualizza categoria        OK
 $app->post('/visualizzacategoria', function (Request $request, Response $response) {
 
     $db = new DBUtenti();
@@ -326,7 +321,7 @@ $app->post('/visualizzacategoria', function (Request $request, Response $respons
         $responseData['error'] = false; //Campo errore = false
         $responseData['contatore'] = $contatore;
         $responseData['message'] = 'Elemento visualizzato con successo'; //Messaggio di esiso positivo
-        $response->getBody()->write(json_encode(array("CDL" => $responseData)));
+        $response->getBody()->write(json_encode(array("Categorie" => $responseData)));
         //metto in un json e lo inserisco nella risposta del servizio REST
         //Definisco il Content-type come json, i dati sono strutturati e lo dichiaro al browser
         $newResponse = $response->withHeader('Content-type', 'application/json');
@@ -340,10 +335,8 @@ $app->post('/visualizzacategoria', function (Request $request, Response $respons
 });
 
 
-
-
-//endpoint rimuovi scadenza
-$app->delete('/rimuoviscadenza/{id}', function (Request $request, Response $response) {
+//endpoint rimuovi scadenza     OK
+$app->delete('/rimuoviscadenza', function (Request $request, Response $response) {
     $db = new DBUtenti();
     $codice_scadenza = $request->getAttribute('codice_scadenza');
     //Risposta del servizio REST
@@ -363,8 +356,7 @@ $app->delete('/rimuoviscadenza/{id}', function (Request $request, Response $resp
 });
 
 
-
-//endpoint /visualizzanomeutente
+//endpoint /visualizzanomeutente            OK
 $app->post('/visualizzanomeutente', function (Request $request, Response $response) {
 
     $db = new DBUtenti();
@@ -378,7 +370,7 @@ $app->post('/visualizzanomeutente', function (Request $request, Response $respon
         $responseData['error'] = false; //Campo errore = false
         $responseData['message'] = 'Elemento visualizzato con successo'; //Messaggio di esiso positivo
 
-        $response->getBody()->write(json_encode(array("Studente" => $responseData)));
+        $response->getBody()->write(json_encode(array("Utente" => $responseData)));
         //Definisco il Content-type come json, i dati sono strutturati e lo dichiaro al browser
         $newResponse = $response->withHeader('Content-type', 'application/json');
         return $newResponse; //Invio la risposta del servizio REST al client
@@ -390,6 +382,8 @@ $app->post('/visualizzanomeutente', function (Request $request, Response $respon
     return $response->withJson($responseData); //Invio la risposta del servizio REST al client
 });
 
+
+//visualizza stato pagamento   OK
 $app->post('/visualizzapagamento', function (Request $request, Response $response) {
 
     $db = new DBUtenti();
@@ -403,7 +397,7 @@ $app->post('/visualizzapagamento', function (Request $request, Response $respons
         $responseData['error'] = false; //Campo errore = false
         $responseData['message'] = 'Elemento visualizzato con successo'; //Messaggio di esiso positivo
 
-        $response->getBody()->write(json_encode(array("Scadenza" => $responseData)));
+        $response->getBody()->write(json_encode(array("Scadenza statO" => $responseData)));
         //Definisco il Content-type come json, i dati sono strutturati e lo dichiaro al browser
         $newResponse = $response->withHeader('Content-type', 'application/json');
         return $newResponse; //Invio la risposta del servizio REST al client
@@ -425,14 +419,15 @@ $app->post('/inserisciscadenza', function (Request $request, Response $response)
     $data_ricezione = $requestData['data_ricezione'];
     $data_scadenza = $requestData['data_scadenza'];
     $periodo = $requestData['periodo'];
-    $codice_categoria = $requestData['codice_categoria'];
+    $cod_categoria = $requestData['cod_categoria'];
+    $cod_utente = $requestData['cod_utente'];
     $importo = $requestData['importo'];
 
     //Risposta del servizio REST
     $responseData = array(); //La risposta e' un array di informazioni da compilare
 
     //Controllo la risposta dal DB e compilo i campi della risposta
-    if ($db->inserisciScadenza($nome, $data_ricezione, $data_scadenza, $periodo, $importo)) { //Se l'inserimento Ã¨ andato a buon fine
+    if ($db->inserisciScadenza($nome, $data_ricezione, $data_scadenza, $periodo, $cod_categoria, $cod_utente, $importo)) { //Se l'inserimento Ã¨ andato a buon fine
         $responseData['error'] = false; //Campo errore = false
         $responseData['message'] = 'Inserimento avvenuto con successo'; //Messaggio di esito positivo
 
@@ -444,7 +439,7 @@ $app->post('/inserisciscadenza', function (Request $request, Response $response)
 });
 
 
-// visualizza scadenza per data
+// visualizza scadenza per data    OK  - AGGIUSTATA (JO)
 $app->post('/visualizzascadenzaperdata', function (Request $request, Response $response) {
 
     $db = new DBUtenti();
@@ -455,6 +450,7 @@ $app->post('/visualizzascadenzaperdata', function (Request $request, Response $r
     //Controllo la risposta dal DB e compilo i campi della risposta
     $responseData = $db->visualizzaScadenzaPerData($cod_utente);
     $contatore = (count($responseData));
+
     if ($responseData != null) {
         $responseData['error'] = false; //Campo errore = false
         $responseData['message'] = 'Elemento visualizzato con successo'; //Messaggio di esiso positivo
@@ -468,9 +464,9 @@ $app->post('/visualizzascadenzaperdata', function (Request $request, Response $r
         $responseData['message'] = 'Errore imprevisto';
         return $response->withJson($responseData);
     }
-    //Invio la risposta del servizio REST al client
 });
 
+//conferma pagamento            OK
 $app->post('/confermapagamento', function (Request $request, Response $response) {
 
     $db = new DBUtenti();
@@ -494,6 +490,7 @@ $app->post('/confermapagamento', function (Request $request, Response $response)
     return $response->withJson($responseData); //Messaggio di esito negativo
 });
 
+//annulla pagamento OK
 $app->post('/annullapagamento', function (Request $request, Response $response) {
 
     $db = new DBUtenti();
