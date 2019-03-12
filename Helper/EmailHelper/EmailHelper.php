@@ -1,14 +1,5 @@
 <?php
 
-/********************* DEPRECATED ********************/
-
-/**
- * Created by PhpStorm.
- * User: Andrea
- * Date: 20/05/18
- * Time: 12:35
- */
-
 // Import PHPMailer classes into the global namespace
 //  These must be at the top of your script, not inside a function
 use PHPMailer\PHPMailer\PHPMailer;

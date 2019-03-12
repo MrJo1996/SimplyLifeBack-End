@@ -383,6 +383,27 @@ class DBUtenti
         return $result;
     }
 
+    public function inserisciScadenza($nome, $data_ricezione, $data_scadenza, $periodo, $codice_categoria, $importo) {
+        $tabella = $this->tabelleDB[2]; //Tabella per la query
+        $campi = $this->campiTabelleDB[$tabella];
+        $query = (
+            "INSERT INTO  " .
+            $tabella . " ( " .
+
+            $campi[1] . ", " .
+            $campi[2] . ", " .
+            $campi[3] . ", " .
+            $campi[4] . ", " .
+            $campi[5] . ", " .
+            $campi[7] . " ) " .
+
+            "VALUES (?,?,?,?,?)"
+        );
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("sssiif", $nome, $data_ricezione, $data_scadenza, $periodo, $codice_categoria, $importo);
+        return $stmt->execute();
+    }
+
     /*PER LA LOGOUT, NON SERVE IL SERVIZIO NEL BACK-END MA DIRETTAMENTE DALLA FOLDER DELL'APP
     * <?php
     session_start();
