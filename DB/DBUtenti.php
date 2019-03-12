@@ -437,6 +437,47 @@ class DBUtenti
         }
     }
 
+    //VISUALIZZA L'IMPORTO ATTRAVERSO IL CODICE DELLE SCADENZE (SERVE PER LA FUNZIONE CALCOLA SPESA)
+    public function visualizzaImportoPerCodice($codice_scadenza)
+    {
+        $tabella = $this->tabelleDB[2];
+        $campi = $this->campiTabelleDB[$tabella];
+        $query = (
+            "SELECT" .
+            $campi[8] . " " .
+            "FROM".
+            $tabella ."".
+            "WHERE".
+            $campi[0] = $codice_scadenza
+        );
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("i", $importo);
+        $result = ($stmt->execute())
+        ;
+        return $result;
+    }
+
+    //VISUALIZZA IL PERIODO ATTRAVERSO IL CODICE DELLE SCADENZE (SERVE PER LA FUNZIONE CALCOLA SPESA)
+    public function visualizzaPeriodoPerCodice($codice_scadenza)
+    {
+        $tabella = $this->tabelleDB[2];
+        $campi = $this->campiTabelleDB[$tabella];
+        $query = (
+            "SELECT" .
+            $campi[5] . " " .
+            "FROM".
+            $tabella ."".
+            "WHERE".
+            $campi[0] = $codice_scadenza
+        );
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("i", $periodo);
+        $result = ($stmt->execute())
+        ;
+        return $result;
+    }
+
+
     //VISUALIZZA SCADENZE PER CATEGORIA
     public function visualizzaScadenzePerCategoria($Categoria)
     {
