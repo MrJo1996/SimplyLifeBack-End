@@ -68,7 +68,7 @@ $app->add(function ($req, $res, $next) {
 
  */
 
-/*************** LISTA DI ENDPOINT ***************/
+/*************** LISTA DI ENDPOINT **************/
 
 /* aggiungo ad $app tutta la lista di endpoint che voglio */
 
