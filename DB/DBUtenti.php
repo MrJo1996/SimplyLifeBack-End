@@ -51,38 +51,35 @@ class DBUtenti
     {
         $utenteTab = $this->tabelleDB[0];
         $campi = $this->campiTabelleDB[$utenteTab];
-        $attivo = 1;
-        /*query: "SELECT matricola, nome, cognome, email, 'studente' as tabella FROM studente WHERE email = ? AND password = ? AND attivo = 1*/
+
+
         $query = (
             "SELECT " .
-            $campi[1] . ", " .
-            $campi[3] . ", " .
-            $campi[4] . " " .
-            "'" . $utenteTab . "' as tabella " .
+            $campi[0] . ", " .
+            $campi[1] . " " .
+
             "FROM " .
             $utenteTab . " " .
             "WHERE " .
             $campi[1] . " = ? AND " .
-            $campi[2] . " = ? AND " .
-            $campi[5] . " = ? "
+            $campi[2] . " = ? "
         );
 
         //Invio la query
         $stmt = $this->connection->prepare($query);
-        $stmt->bind_param("ssi", $email, $password, $attivo); //ss se sono 2 stringhe, ssi 2 string e un int (sostituisce ? della query)
+        $stmt->bind_param("ss", $email, $password); //ss se sono 2 stringhe, ssi 2 string e un int (sostituisce ? della query)
         $stmt->execute();
+        echo $query;
         //Ricevo la risposta del DB
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
-            $stmt->bind_result($email, $nome, $cognome, $table);
+            $stmt->bind_result($codice_utente, $email);
             $utente = array();
 
             while ($stmt->fetch()) {
                 $temp = array();
+                $temp[$campi[0]] = $codice_utente;
                 $temp[$campi[1]] = $email;
-                $temp[$campi[3]] = $nome;
-                $temp[$campi[4]] = $cognome;
-                $temp["tabella"] = $table;
                 array_push($utente, $temp);
             }
 
@@ -147,6 +144,7 @@ class DBUtenti
     {
         $tabella = $this->tabelleDB[0];
         $campi = $this->campiTabelleDB[$tabella];
+
         $attivo = 0;
 
         $query = (
@@ -156,7 +154,7 @@ class DBUtenti
             $campi[2] . ", " .
             $campi[3] . ", " .
             $campi[4] . ", " .
-            $campi[5] . ") " .
+            $campi[5] . ") " .              //mette in automatico attivo a 0
 
             "VALUES (?,?,?,?,?)"
         );
@@ -383,7 +381,8 @@ class DBUtenti
         return $result;
     }
 
-    public function inserisciScadenza($nome, $data_ricezione, $data_scadenza, $periodo, $codice_categoria, $importo) {
+    public function inserisciScadenza($nome, $data_ricezione, $data_scadenza, $periodo, $codice_categoria, $importo)
+    {
         $tabella = $this->tabelleDB[2]; //Tabella per la query
         $campi = $this->campiTabelleDB[$tabella];
         $query = (
@@ -411,5 +410,6 @@ class DBUtenti
     header("location: ./login.php");
     ?>*/
 }
+
 //
 ?>

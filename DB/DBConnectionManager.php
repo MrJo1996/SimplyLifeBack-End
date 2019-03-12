@@ -5,7 +5,7 @@ class DBConnectionManager
     //ALTERVISTA UFFICIALE
     private $connection;
     private $host = "localhost";
-    private $username = "simplylife";
+    private $username = "root";
     private $passwd = "";
     private $dbname = "simplylife";
 
