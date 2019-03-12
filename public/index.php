@@ -131,6 +131,60 @@ $app->post('/registrazione', function (Request $request, Response $response) {
     return $response->withJson($responseData); //Invio la risposta del servizio REST al client
 });
 
+$app->post('/visualizzaimporto', function (Request $request, Response $response) {
+
+    $db = new DBUtenti();
+
+    $requestData = $request->getParsedBody();//Dati richiesti dal servizio REST
+
+    $codice_scadenza = $requestData['codice_scadenza'];
+
+    //Risposta del servizio REST
+    $responseData = array(); //La risposta e' un array di informazioni da compilare
+
+    //Controllo la risposta dal DB e compilo i campi della risposta
+    $responseDB = $db->visualizzaImportoPerCodice($codice_scadenza);
+    if ($responseDB == 1) { //Se la registrazione è andata a buon fine
+        $responseData['error'] = false; //Campo errore = false
+        $responseData['message'] = 'Nessun errore'; //Messaggio di esito positivo
+        $response->getBody()->write(json_encode(array("importo" => $responseData)));
+        //Definisco il Content-type come json, i dati sono strutturati e lo dichiaro al browser
+        $newResponse = $response->withHeader('Content-type', 'application/json');
+        return $newResponse;
+    } else if ($responseDB == 2) { //Se la bolletta non è presente nel DB
+        $responseData['error'] = true; //Campo errore = true
+        $responseData['message'] = 'Bolletta non trovata!';
+        return $response->withJson($responseData); //Messaggio di esito negativo
+    }
+});
+
+$app->post('/visualizzaperiodo', function (Request $request, Response $response) {
+
+    $db = new DBUtenti();
+
+    $requestData = $request->getParsedBody();//Dati richiesti dal servizio REST
+
+    $codice_scadenza = $requestData['codice_scadenza'];
+
+    //Risposta del servizio REST
+    $responseData = array(); //La risposta e' un array di informazioni da compilare
+
+    //Controllo la risposta dal DB e compilo i campi della risposta
+    $responseDB = $db->visualizzaPeriodoPerCodice($codice_scadenza);
+    if ($responseDB == 1) { //Se la registrazione è andata a buon fine
+        $responseData['error'] = false; //Campo errore = false
+        $responseData['message'] = 'Nessun errore'; //Messaggio di esito positivo
+        $response->getBody()->write(json_encode(array("importo" => $responseData)));
+        //Definisco il Content-type come json, i dati sono strutturati e lo dichiaro al browser
+        $newResponse = $response->withHeader('Content-type', 'application/json');
+        return $newResponse;
+    } else if ($responseDB == 2) { //Se la bolletta non è presente nel DB
+        $responseData['error'] = true; //Campo errore = true
+        $responseData['message'] = 'Bolletta non trovata!';
+        return $response->withJson($responseData); //Messaggio di esito negativo
+    }
+});
+
 
 /****** PER ORA NON FUNZIONA COL L'ENDPOINT MA TRAMITE LINK DIRETTO COL FILE ACRTIVATE.PHP NELLA CARTELLA PUBLIC ***/
 // endpoint: /conferma (Andrea)
