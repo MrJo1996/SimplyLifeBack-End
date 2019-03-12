@@ -15,4 +15,5 @@ class DBConnectionManager
         return $this->connection;
     }
 }
+
 ?>
