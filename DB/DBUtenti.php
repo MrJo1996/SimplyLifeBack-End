@@ -380,15 +380,15 @@ class DBUtenti
             "SET " .
             $campi[1] . " = ?, " .
             $campi[2] . " = ?, " .
-            $campi[3] . " = ? " .
-            $campi[4] . " = ? " .
+            $campi[3] . " = ? ," .
+            $campi[4] . " = ? ," .
             $campi[7] . " = ? " .
             "WHERE " .
             $campi[0] . " = ?"
         );
         //Invio la query
         $stmt = $this->connection->prepare($query);
-        $stmt->bind_param("isssif", $codice_scadenza, $nome, $data_ricezione, $data_scadenza, $periodo, $importo);
+        $stmt->bind_param("sssidi",  $nome, $data_ricezione, $data_scadenza, $periodo, $importo,$codice_scadenza);
 
         $result = $stmt->execute();
 
@@ -415,7 +415,7 @@ class DBUtenti
             "VALUES (?,?,?,?,?,?,?)"
         );
         $stmt = $this->connection->prepare($query);
-        $stmt->bind_param("sssiiif", $nome, $data_ricezione, $data_scadenza, $periodo, $cod_categoria, $cod_utente, $importo);
+        $stmt->bind_param("sssiiid", $nome, $data_ricezione, $data_scadenza, $periodo, $cod_categoria, $cod_utente, $importo);
         return $stmt->execute();
     }
 
