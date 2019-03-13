@@ -254,20 +254,7 @@ class DBUtenti
             "WHERE " .
             $campi[6] . " = ? " .
             "ORDER BY " .
-            $campi[3] /*. //in ordine crescente in base alla data di scadenza
-            " UNION " .
-            "SELECT " .
-            $campi1[1] . ", " .
-            NULL . ", " .
-            NULL . ", " .
-            NULL . ", " .
-            NULL . ", " .
-            NULL . " " .
-            "FROM " .
-            $tabella1 . " " .
-            "WHERE " .
-            $campi[5] . " = " .
-            $campi1[0]*/
+            $campi[3] //in ordine crescente in base alla data di scadenza
         );
 
         echo $query;
