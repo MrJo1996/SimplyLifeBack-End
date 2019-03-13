@@ -425,7 +425,7 @@ class DBUtenti
             $campi[6] . ", " .
             $campi[7] . " ) " .
 
-            "VALUES (?,?,?,?,?,?)"
+            "VALUES (?,?,?,?,?,?,?)"
         );
         $stmt = $this->connection->prepare($query);
         $stmt->bind_param("sssiiif", $nome, $data_ricezione, $data_scadenza, $periodo, $cod_categoria, $cod_utente, $importo);
@@ -516,85 +516,68 @@ class DBUtenti
         }
     }
 
-    public function visualizzaImportoPerCodice($codice_scadenza)
-    {
-        $tabella = $this->tabelleDB[2];
-        $campi = $this->campiTabelleDB[$tabella];
+    public function visualizzaImportoPerCodice($codice_scadenza){
+            $tabella = $this->tabelleDB[2]; //Tabella per la query
+            $campi = $this->campiTabelleDB[$tabella];
+        /*  query: "SELECT importo FROM scadenza WHERE codice_scadenza = ?" */
+            $query = (
+                "SELECT " .
+                $campi[7] . " " .
+                "FROM " .
+                $tabella . " " .
+                "WHERE " .
+                $campi[0] . " = ?"
+            );
+            $stmt = $this->connection->prepare($query);
+            $stmt->bind_param("i", $codice_scadenza);
+            $stmt->execute();
+            $stmt->store_result();
+            if ($stmt->num_rows > 0) {
+                $stmt->bind_result($importo);
+                $importi = array();
+                while ($stmt->fetch()) { //Scansiono la risposta della query
+                    $temp = array();
+                    //Indicizzo con key i dati nell'array
+                    $temp[$campi[7]] = $importo;
+                    array_push($importi, $temp); //Inserisco l'array $temp all'ultimo posto dell'array $profilo
+                }
+                return $importi;
+            } else {
+                return null;
+            }
+        }
 
+
+    public function visualizzaPeriodoPerCodice($codice_scadenza){
+        $tabella = $this->tabelleDB[2]; //Tabella per la query
+        $campi = $this->campiTabelleDB[$tabella];
+        /*  query: "SELECT periodo FROM scadenza WHERE codice_scadenza = ?" */
         $query = (
             "SELECT " .
-            $campi[7] . " " .
+            $campi[4] . " " .
             "FROM " .
             $tabella . " " .
             "WHERE " .
             $campi[0] . " = ?"
         );
-
-        echo $query;
-
         $stmt = $this->connection->prepare($query);
         $stmt->bind_param("i", $codice_scadenza);
-        $result = ($stmt->execute());
-        return $result;
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result($periodo);
+            $periodi = array();
+            while ($stmt->fetch()) { //Scansiono la risposta della query
+                $temp = array();
+                //Indicizzo con key i dati nell'array
+                $temp[$campi[4]] = $periodo;
+                array_push($periodi, $temp); //Inserisco l'array $temp all'ultimo posto dell'array $profilo
+            }
+            return $periodi;
+        } else {
+            return null;
+        }
     }
-
-    public function visualizzaPeriodoPerCodice($codice_scadenza)
-    {
-        $tabella = $this->tabelleDB[2];
-        $campi = $this->campiTabelleDB[$tabella];
-        $query = (
-            "SELECT" .
-            $campi[5] . " " .
-            "FROM" .
-            $tabella . "" .
-            "WHERE" .
-            $campi[0] . " = ?"
-        );
-        $stmt = $this->connection->prepare($query);
-        $stmt->bind_param("i", $periodo);
-        $result = ($stmt->execute());
-        return $result;
-    }
-
-    /* public function visualizzaImportoPerCodice($codice_scadenza)
-     {
-         $table = $this->tabelleDB[2]; //Tabella per la query
-         $campi = $this->campiTabelleDB[$table];
-         $query = //query: "SELECT id, nome FROM cdl"
-             ("SELECT " .
-                 $campi[7] . " " .
-                 "FROM " .
-                 $table . " " .
-                 "WHERE " . $campi[0] . " = ?");
-         $stmt = $this->connection->prepare($query);
-         $stmt->bind_param("i", $codice_scadenza);
-         $stmt->execute();
-
-         $stmt->store_result();
-
-         echo $query;
-
-
-         if ($stmt->num_rows > 0) {
-             $stmt->bind_result($importo);
-             $result = $importo;
-
-             echo $result;
-
-             echo $importo;
-                 while ($stmt->fetch()) { //Scansiono la risposta della query
-                  echo $query;
-                  $temp = array(); //Array temporaneo per l'acquisizione dei dati
-                  //Indicizzo con key i dati nell'array
-                  $temp[$campi[7]] = $importo;
-
-                  array_push($result, $temp); //Inserisco l'array $temp all'ultimo posto dell'array $cdl
-
-              }
-             return $result;
-         } else
-             return null;
-     }*/
 
 }
 
