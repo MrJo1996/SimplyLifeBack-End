@@ -68,7 +68,6 @@ class DBUtenti
         $stmt = $this->connection->prepare($query);
         $stmt->bind_param("ss", $email, $password); //ss se sono 2 stringhe, ssi 2 string e un int (sostituisce ? della query)
         $stmt->execute();
-        echo $query; //stampa query
         //Ricevo la risposta del DB
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
@@ -172,7 +171,6 @@ class DBUtenti
             $tabella . " WHERE " .
             $campi[0] . " = ? "
         );
-
         $stmt = $this->connection->prepare($query);
         $stmt->bind_param("i", $codice_scadenza);
         $result = $stmt->execute();
@@ -235,10 +233,8 @@ class DBUtenti
     public function visualizzaScadenzaPerData($cod_utente)
     {
         $tabella = $this->tabelleDB[2]; //Tabella per la query (Scadenza)
-        $tabella1 = $this->tabelleDB[1]; //Tabella per la query (Categ)
 
         $campi = $this->campiTabelleDB[$tabella];
-        $campi1 = $this->campiTabelleDB[$tabella1];
 
         //query= SELECT nome,data_ric,data_scad,categ,periodo,importo FROM scadenza WHERE cod_utente=$cod_utente
         $query = (
@@ -256,8 +252,6 @@ class DBUtenti
             "ORDER BY " .
             $campi[3] //in ordine crescente in base alla data di scadenza
         );
-
-        echo $query;
 
         $stmt = $this->connection->prepare($query);
         $stmt->bind_param("i", $cod_utente);
@@ -362,7 +356,7 @@ class DBUtenti
             while ($stmt->fetch()) { //Scansiono la risposta della query
                 $temp = array(); //Array temporaneo per l'acquisizione dei dati
                 //Indicizzo con key i dati nell'array
-                $temp[$campi[0]] = $scadenz;
+                $temp[$campi[8]] = $scadenz;
                 array_push($scadenza, $temp); //Inserisco l'array $temp all'ultimo posto dell'array $cdl
             }
             return $scadenza;
@@ -425,6 +419,8 @@ class DBUtenti
     session_destroy();
     header("location: ./login.php");
     ?>*/
+
+
     //VISUALIZZA CATEOGORIE
     public function visualizzaCategorie()
     {
