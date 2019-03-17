@@ -281,26 +281,28 @@ class DBUtenti
         }
     }
 
-    public function modificaPassword($email, $password)
+    public function modificaPassword($email, $vecchia_password, $nuova_password)
     {
 
         $tabella = $this->tabelleDB[0];
-
         $campi = $this->campiTabelleDB[$tabella];
-        //query:  "UPDATE TABLE SET password = ? WHERE email = ?"
-        $query = (
-            "UPDATE " .
-            $tabella . " " .
-            "SET " .
-            $campi[2] . " = ? " .
-            "WHERE " .
-            $campi[1] . " = ?"
-        );
-        //Invio la query
-        $stmt = $this->connection->prepare($query);
-        $stmt->bind_param("ss", $password, $email);
-        return $stmt->execute();
+
+            //query:  "UPDATE TABLE SET password = ? WHERE email = ? "
+            $query = (
+                "UPDATE " .
+                $tabella . " " .
+                "SET " .
+                $campi[2] . " = ? " .
+                "WHERE " .
+                $campi[1] . " = ?" .
+                "AND " . campi[2] . "= ?"
+            );
+            //Invio la query
+            $stmt = $this->connection->prepare($query);
+            $stmt->bind_param("sss", $nuova_password, $email, $vecchia_password);
+            return $stmt->execute();
     }
+
 
     public function recuperaPassword($email, $password)
     {

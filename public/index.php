@@ -237,12 +237,13 @@ $app->post('/modificapassword', function (Request $request, Response $response) 
 
     $requestData = $request->getParsedBody();//Dati richiesti dal servizio REST
     $email = $requestData['email'];
-    $new_password = $requestData['password'];
+    $new_password = $requestData['nuova_password'];
+    $old_password = $requestData['password'];
 
 
     //Risposta del servizio REST
     $responseData = array(); //La risposta e' un array di informazioni da compilare
-    $responseDB=$db->modificaPassword($email, $new_password);
+    $responseDB=$db->modificaPassword($email,$old_password, $new_password);
     //Controllo la risposta dal DB e compilo i campi della risposta
     if ($responseDB) {
         $responseData['error'] = false; //Campo errore = false
