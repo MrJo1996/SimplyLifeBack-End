@@ -236,14 +236,13 @@ $app->post('/modificapassword', function (Request $request, Response $response) 
     $db = new DBUtenti();
 
     $requestData = $request->getParsedBody();//Dati richiesti dal servizio REST
-    $email = $requestData['email'];
-    $new_password = $requestData['nuova_password'];
-    $old_password = $requestData['password'];
+    $codice_utente = $requestData['codice_utente'];
+    $password = $requestData['password'];
 
 
     //Risposta del servizio REST
     $responseData = array(); //La risposta e' un array di informazioni da compilare
-    $responseDB=$db->modificaPassword($email,$old_password, $new_password);
+    $responseDB=$db->modificaPassword($codice_utente,$password);
     //Controllo la risposta dal DB e compilo i campi della risposta
     if ($responseDB) {
         $responseData['error'] = false; //Campo errore = false
@@ -324,7 +323,7 @@ $app->post('/visualizzascadenzepercategoria', function (Request $request, Respon
 
 
 //endpoint /Visualizza categoria        OK
-$app->post('/visualizzacategoria', function (Request $request, Response $response) {
+$app->get('/visualizzacategoria', function (Request $request, Response $response) {
 
     $db = new DBUtenti();
 
@@ -351,21 +350,23 @@ $app->post('/visualizzacategoria', function (Request $request, Response $respons
 
 
 //endpoint rimuovi scadenza--------------Non rimuove
-$app->delete('/rimuoviscadenza/{codice_scadenza}', function (Request $request, Response $response) {
+$app->delete('/rimuoviscadenza', function (Request $request, Response $response) {
     $db = new DBUtenti();
+
     $codice_scadenza = $request->getAttribute('codice_scadenza');
     //Risposta del servizio REST
     $responseData = array(); //La risposta è un array di informazioni da compilare
 
     //Controllo la risposta dal DB e compilo i campi della risposta
     $esito = $db->rimuoviScadenza($codice_scadenza);
+
     if ($esito) { //Se è stato possibile rimuovere la scadenza
         $responseData['error'] = false; //Campo errore = false
         $responseData['message'] = 'Scadenza rimossa'; //Messaggio di esito positivo
 
-    } else { //Se si è verificato un errore imprevisto
+    } else { //Se si è verificato un errore
         $responseData['error'] = true; //Campo errore = true
-        $responseData['message'] = 'Non Ã¨ stato possibile rimuovere la scadenza'; //Messaggio di esito negativo
+        $responseData['message'] = 'Non è stato possibile rimuovere la scadenza'; //Messaggio di esito negativo
     }
     return $response->withJson($responseData); //Invio la risposta del servizio REST al client
 });
@@ -533,5 +534,8 @@ $app->post('/annullapagamento', function (Request $request, Response $response) 
 // Run app = ho riempito $app e avvio il servizio REST
 
 $app->run();
+
+// 6 OK A F.RANIERI
+//10 OK A D.MESSINA
 
 ?>
