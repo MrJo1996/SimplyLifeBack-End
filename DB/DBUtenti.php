@@ -283,6 +283,27 @@ class DBUtenti
 
     public function modificaPassword($email, $password)
     {
+
+        $tabella = $this->tabelleDB[0];
+
+        $campi = $this->campiTabelleDB[$tabella];
+        //query:  "UPDATE TABLE SET password = ? WHERE email = ?"
+        $query = (
+            "UPDATE " .
+            $tabella . " " .
+            "SET " .
+            $campi[2] . " = ? " .
+            "WHERE " .
+            $campi[1] . " = ?"
+        );
+        //Invio la query
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("ss", $password, $email);
+        return $stmt->execute();
+    }
+
+    public function recuperaPassword($email, $password)
+    {
         $password = hash('sha256', $password);
         $tabella = $this->tabelleDB[0];
 

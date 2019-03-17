@@ -120,9 +120,9 @@ $app->post('/registrazione', function (Request $request, Response $response) {
     if ($responseDB== 1) { //Se la registrazione è andata a buon fine
         $responseData['error'] = false; //Campo errore = false
         $responseData['message'] = 'Registrazione avvenuta con successo'; //Messaggio di esito positivo
-        $emailSender = new EmailHelperAltervista();
-        $link = 'http://unimolshare.altervista.org/logic/UnimolShare/public/activate.php?email=' . $email;
-        $emailSender->sendConfermaAccount($email, $link);
+        //$emailSender = new EmailHelperAltervista();
+        //$link = 'http://unimolshare.altervista.org/logic/UnimolShare/public/activate.php?email=' . $email;
+        //$emailSender->sendConfermaAccount($email, $link);
     } else if ($responseDB== 2) { //Se l'email è già presente nel DB
         $responseData['error'] = true; //Campo errore = true
         $responseData['message'] = 'Account già  esistente!'; //Messaggio di esito negativo
@@ -190,7 +190,7 @@ $app->get('/conferma', function (Request $request, Response $response) {
     $codice_utente = $requestData['codice_utente'];
 
     //Risposta del servizio REST
-    $responseData = array(); //La risposta e' un array di informazioni da compilare
+    $responseData=array(); //La risposta e' un array di informazioni da compilare
     $responseData=$db->confermaProfilo($email, $codice_utente);
     //Controllo la risposta dal DB e compilo i campi della risposta
     if ($responseData) {
@@ -231,6 +231,30 @@ $app->post('/modificascadenza', function (Request $request, Response $response) 
     return $response->withJson($responseData); //Invio la risposta del servizio REST al client
 });
 
+// endpoint: /modificapassword
+$app->post('/modificapassword', function (Request $request, Response $response) {
+    $db = new DBUtenti();
+
+    $requestData = $request->getParsedBody();//Dati richiesti dal servizio REST
+    $email = $requestData['email'];
+    $new_password = $requestData['password'];
+
+
+    //Risposta del servizio REST
+    $responseData = array(); //La risposta e' un array di informazioni da compilare
+    $responseDB=$db->modificaPassword($email, $new_password);
+    //Controllo la risposta dal DB e compilo i campi della risposta
+    if ($responseDB) {
+        $responseData['error'] = false; //Campo errore = false
+        $responseData['message'] = 'Modifica effettuata'; //Messaggio di esiso positivo
+
+    } else { //Se c'è stato un errore imprevisto
+        $responseData['error'] = true; //Campo errore = true
+        $responseData['message'] = "Impossibile effettuare la modifica"; //Messaggio di esito negativo
+    }
+    return $response->withJson($responseData); //Invio la risposta del servizio REST al client
+});
+
 
 //endpoint /recupero password/modifica password             OK
 $app->post('/recupero', function (Request $request, Response $response) {
@@ -249,7 +273,7 @@ $app->post('/recupero', function (Request $request, Response $response) {
     if ($db->recupero($email)) { //Se l'email viene trovata
         $nuovaPassword = $randomizerPassword->generatePassword(4);
 
-        if ($db->modificaPassword($email, $nuovaPassword)) {
+        if ($db->recuperaPassword($email, $nuovaPassword)) {
             if ($emailSender->sendResetPasswordEmail($email, $nuovaPassword)) {
                 $responseData['error'] = false; //Campo errore = false
                 $responseData['message'] = "Email di recupero password inviata"; //Messaggio di esito positivo
