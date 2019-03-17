@@ -258,7 +258,6 @@ class DBUtenti
         $stmt->execute();
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
-            echo "num_rows > 0";
             //Salvo il risultato della query in alcune variabili che andranno a comporre l'array temp //
             $stmt->bind_result($nome, $data_ricezione, $data_scadenza, $periodo, $nome_categoria, $importo);
             $scadenza = array();
