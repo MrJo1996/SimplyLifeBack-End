@@ -172,11 +172,6 @@ class DBUtenti
             $campi[0] . " = ? "
         );
 
-        /*echo $tabella;
-        echo $campi[0];
-        echo $codice_scadenza;*/
-
-        echo $query;
 
         $stmt = $this->connection->prepare($query);
         $stmt->bind_param("i", $codice_scadenza);
@@ -288,32 +283,24 @@ class DBUtenti
         }
     }
 
-    public function modificaPassword($codice_utente, $nuova_password)
+    public function modificaPassword($email, $password)
     {
         $tabella = $this->tabelleDB[0];
+
         $campi = $this->campiTabelleDB[$tabella];
-
-
-
-
-
-
-        //query:  "UPDATE TABLE SET password = ? WHERE email = ? "
-
-            $query = (
-                "UPDATE " .
-                $tabella . " " .
-                "SET " .
-                $campi[2] . " = ? " .
-                "WHERE " .
-                 $campi[0] . " = ? "
-            );
-
-            //Invio la query
-            $stmt = $this->connection->prepare($query);
-            $stmt->bind_param("si", $nuova_password, $codice_utente);
-            echo $query;
-            return $stmt->execute();
+        //query:  "UPDATE TABLE SET password = ? WHERE email = ?"
+        $query = (
+            "UPDATE " .
+            $tabella . " " .
+            "SET " .
+            $campi[2] . " = ? " .
+            "WHERE " .
+            $campi[1] . " = ?"
+        );
+        //Invio la query
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("ss", $password, $email);
+        return $stmt->execute();
     }
 
 
@@ -566,7 +553,6 @@ class DBUtenti
         }
     }
 
-
     public function visualizzaPeriodoPerCodice($codice_scadenza)
     {
         $tabella = $this->tabelleDB[2]; //Tabella per la query
@@ -598,6 +584,7 @@ class DBUtenti
             return null;
         }
     }
+
 
 }
 

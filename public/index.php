@@ -86,7 +86,7 @@ $app->post('/login', function (Request $request, Response $response) {
     $responseData = array(); //La risposta e' un array di informazioni da compilare
 
     //Controllo la risposta dal DB e compilo i campi della risposta
-    $responseData['data']= $db->login($email, $password);
+    $responseData['data'] = $db->login($email, $password);
     if ($responseData['data']) { //Se l'utente esiste ed e' corretta la password
         $responseData['error'] = false; //Campo errore = false
         $responseData['message'] = 'Accesso effettuato'; //Messaggio di esiso positivo
@@ -116,14 +116,14 @@ $app->post('/registrazione', function (Request $request, Response $response) {
     $responseData = array(); //La risposta e' un array di informazioni da compilare
 
     //Controllo la risposta dal DB e compilo i campi della risposta
-    $responseDB= $db->registrazione($email, $password, $nome, $cognome);
-    if ($responseDB== 1) { //Se la registrazione è andata a buon fine
+    $responseDB = $db->registrazione($email, $password, $nome, $cognome);
+    if ($responseDB == 1) { //Se la registrazione è andata a buon fine
         $responseData['error'] = false; //Campo errore = false
         $responseData['message'] = 'Registrazione avvenuta con successo'; //Messaggio di esito positivo
         //$emailSender = new EmailHelperAltervista();
         //$link = 'http://unimolshare.altervista.org/logic/UnimolShare/public/activate.php?email=' . $email;
         //$emailSender->sendConfermaAccount($email, $link);
-    } else if ($responseDB== 2) { //Se l'email è già presente nel DB
+    } else if ($responseDB == 2) { //Se l'email è già presente nel DB
         $responseData['error'] = true; //Campo errore = true
         $responseData['message'] = 'Account già  esistente!'; //Messaggio di esito negativo
     }
@@ -155,11 +155,10 @@ $app->post('/visualizzaimporto', function (Request $request, Response $response)
 });
 
 
-
 //endpoint visualizza periodo per codice scadenza       OK - AGGIUSTATO(Doro)
 $app->post('/visualizzaperiodo', function (Request $request, Response $response) {
     $db = new DBUtenti();
-    $requestData= $request->getParsedBody();
+    $requestData = $request->getParsedBody();
     $codice_scadenza = $requestData['codice_scadenza'];
 //Controllo la risposta dal DB e compilo i campi della risposta
     $responseData['data'] = $db->visualizzaPeriodoPerCodice($codice_scadenza);
@@ -190,8 +189,8 @@ $app->get('/conferma', function (Request $request, Response $response) {
     $codice_utente = $requestData['codice_utente'];
 
     //Risposta del servizio REST
-    $responseData=array(); //La risposta e' un array di informazioni da compilare
-    $responseData=$db->confermaProfilo($email, $codice_utente);
+    $responseData = array(); //La risposta e' un array di informazioni da compilare
+    $responseData = $db->confermaProfilo($email, $codice_utente);
     //Controllo la risposta dal DB e compilo i campi della risposta
     if ($responseData) {
         $responseData['error'] = false; //Campo errore = false
@@ -218,7 +217,7 @@ $app->post('/modificascadenza', function (Request $request, Response $response) 
 
     //Risposta del servizio REST
     $responseData = array(); //La risposta e' un array di informazioni da compilare
-    $responseDB=$db->modificaScadenza($codice_scadenza, $nome, $data_ricezione, $data_scadenza, $periodo, $importo);
+    $responseDB = $db->modificaScadenza($codice_scadenza, $nome, $data_ricezione, $data_scadenza, $periodo, $importo);
     //Controllo la risposta dal DB e compilo i campi della risposta
     if ($responseDB) {
         $responseData['error'] = false; //Campo errore = false
@@ -236,13 +235,13 @@ $app->post('/modificapassword', function (Request $request, Response $response) 
     $db = new DBUtenti();
 
     $requestData = $request->getParsedBody();//Dati richiesti dal servizio REST
-    $codice_utente = $requestData['codice_utente'];
-    $password = $requestData['password'];
 
+    $password = $requestData['password'];
+    $email = $requestData['email'];
 
     //Risposta del servizio REST
     $responseData = array(); //La risposta e' un array di informazioni da compilare
-    $responseDB=$db->modificaPassword($codice_utente,$password);
+    $responseDB = $db->modificaPassword($email, $password);
     //Controllo la risposta dal DB e compilo i campi della risposta
     if ($responseDB) {
         $responseData['error'] = false; //Campo errore = false
@@ -408,7 +407,7 @@ $app->post('/visualizzapagamento', function (Request $request, Response $respons
     $codice_scadenza = $requestData['codice_scadenza'];
 
 //Controllo la risposta dal DB e compilo i campi della risposta
-    $responseData['data']= $db->visualizzaPagamento($codice_scadenza);
+    $responseData['data'] = $db->visualizzaPagamento($codice_scadenza);
     if ($responseData['data'] != null) {
         $responseData['error'] = false; //Campo errore = false
         $responseData['message'] = 'Elemento visualizzato con successo'; //Messaggio di esiso positivo
@@ -519,7 +518,7 @@ $app->post('/annullapagamento', function (Request $request, Response $response) 
     $responseData = array(); //La risposta e' un array di informazioni da compilare
 
     //Controllo la risposta dal DB e compilo i campi della risposta
-    $responseDB= $db->annullaPagamentoScadenza($codice_scadenza);
+    $responseDB = $db->annullaPagamentoScadenza($codice_scadenza);
     if ($responseDB == 1) { //Se l'azione è andata a buon fine
         $responseData['error'] = false; //Campo errore = false
         $responseData['message'] = 'Nessun errore'; //Messaggio di esito positivo
@@ -535,7 +534,7 @@ $app->post('/annullapagamento', function (Request $request, Response $response) 
 
 $app->run();
 
-// 6 OK A F.RANIERI
+
 //10 OK A D.MESSINA
 
 ?>
