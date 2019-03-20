@@ -247,6 +247,7 @@ class DBUtenti
             $campi[4] . ", " .
             $campi[5] . ", " .
             $campi[7] . " " .
+            $campi[8] . " " .
             "FROM " .
             $tabella . " " .
             "WHERE " .
@@ -261,7 +262,7 @@ class DBUtenti
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
             //Salvo il risultato della query in alcune variabili che andranno a comporre l'array temp //
-            $stmt->bind_result($nome, $data_ricezione, $data_scadenza, $periodo, $nome_categoria, $importo);
+            $stmt->bind_result($nome, $data_ricezione, $data_scadenza, $periodo, $nome_categoria, $importo,$confermato);
             $scadenza = array();
             while ($stmt->fetch()) { //Scansiono la risposta della query
 
@@ -274,6 +275,7 @@ class DBUtenti
                 $temp[$campi[4]] = $periodo;
                 $temp[$campi[5]] = $nome_categoria;
                 $temp[$campi[7]] = $importo;
+                $temp[$campi[7]] = $confermato;
 
                 array_push($scadenza, $temp); //Inserisco l'array $temp all'ultimo posto dell'array $scad
             }
