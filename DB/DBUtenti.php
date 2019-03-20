@@ -303,7 +303,6 @@ class DBUtenti
         return $stmt->execute();
     }
 
-
     public function recuperaPassword($email, $password)
     {
         $password = hash('sha256', $password);
