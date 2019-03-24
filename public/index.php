@@ -270,6 +270,7 @@ $app->post('/recupero', function (Request $request, Response $response) {
 
     //Controllo la risposta dal DB e compilo i campi della risposta
     if ($db->recupero($email)) { //Se l'email viene trovata
+
         $nuovaPassword = $randomizerPassword->generatePassword(4);
 
         if ($db->recuperaPassword($email, $nuovaPassword)) {
@@ -391,6 +392,7 @@ $app->post('/visualizzanomeutente', function (Request $request, Response $respon
         return $newResponse; //Invio la risposta del servizio REST al client
 
     } else {
+        $responseData['data'] = null; //MODIFICA AGGIUNTA
         $responseData['error'] = true; //Campo errore = true
         $responseData['message'] = 'Errore imprevisto'; //Messaggio di esiso negativo
     }
@@ -478,7 +480,6 @@ $app->post('/visualizzascadenzeperdata', function (Request $request, Response $r
         $responseData['message'] = 'Errore imprevisto';
         return $response->withJson($responseData);
     }
-
 });
 
 //conferma pagamento            OK
