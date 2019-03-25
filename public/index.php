@@ -522,7 +522,7 @@ $app->post('/annullapagamento', function (Request $request, Response $response) 
     $responseDB = $db->annullaPagamentoScadenza($codice_scadenza);
     if ($responseDB == 1) { //Se l'azione è andata a buon fine
         $responseData['error'] = false; //Campo errore = false
-        $responseData['message'] = 'Nessun errore'; //Messaggio di esito positivo
+        $responseData['message'] = 'Pagamento annullato'; //Messaggio di esito positivo
     } else { //Se la bolletta non è presente nel DB
         $responseData['error'] = true; //Campo errore = true
         $responseData['message'] = 'Impossibile completare';

@@ -246,7 +246,7 @@ class DBUtenti
             $campi[3] . ", " .
             $campi[4] . ", " .
             $campi[5] . ", " .
-            $campi[7] . " " .
+            $campi[7] . ", " .
             $campi[8] . " " .
             "FROM " .
             $tabella . " " .
@@ -255,7 +255,6 @@ class DBUtenti
             "ORDER BY " .
             $campi[3] //in ordine crescente in base alla data di scadenza
         );
-
         $stmt = $this->connection->prepare($query);
         $stmt->bind_param("i", $cod_utente);
         $stmt->execute();
@@ -275,7 +274,7 @@ class DBUtenti
                 $temp[$campi[4]] = $periodo;
                 $temp[$campi[5]] = $nome_categoria;
                 $temp[$campi[7]] = $importo;
-                $temp[$campi[7]] = $confermato;
+                $temp[$campi[8]] = $confermato;
 
                 array_push($scadenza, $temp); //Inserisco l'array $temp all'ultimo posto dell'array $scad
             }
