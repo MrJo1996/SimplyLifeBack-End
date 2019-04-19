@@ -477,13 +477,13 @@ class DBUtenti
     }
 
     //VISUALIZZA SCADENZE PER CATEGORIA
-    public function visualizzaScadenzePerCategoria($Categoria)
+    public function visualizzaScadenzePerCategoria($codice_categoria, $codice_utente)
     {
         $scadenzeTab = $this->tabelleDB[2];
         $campiScadenza = $this->campiTabelleDB[$scadenzeTab];
         $categorieTab = $this->tabelleDB[1];
         $campiCategoria = $this->campiTabelleDB[$categorieTab];
-        //query: SELECT scadenza.nome,scadenza.data_ricezione,scadenza.data_scadenza,scadenza.periodo, scadenza.importo,scadenza.confermato FROM scadenza Inner join categoria ON scadenza.cod_categoria = categoria.codice_categoria Where categoria.nome_categoria = "?" AND categoria.codice_categoria=scadenza.cod_materia"
+        //query: SELECT scadenza.nome,scadenza.data_ricezione,scadenza.data_scadenza,scadenza.periodo, scadenza.importo,scadenza.confermato FROM scadenza WHERE scadenza.cod_categoria = "?" AND  scadenza.cod_utente=codice_utente"
         $query = (
             "SELECT " .
             $scadenzeTab . "." . $campiScadenza[1] . ", " .
@@ -493,15 +493,10 @@ class DBUtenti
             $scadenzeTab . "." . $campiScadenza[7] . ", " .
             $scadenzeTab . "." . $campiScadenza[8] . " " .
             "FROM " . $scadenzeTab . " " .
-            "Inner join " .
-            $categorieTab . " " .
-            "ON " .
-            $scadenzeTab . "." . $campiScadenza[5] . " = " .
-            $categorieTab . "." . $campiCategoria[0] .
-            " WHERE " . $categorieTab . "." . $campiCategoria[1] . '= ? '
+            "WHERE " . $scadenzeTab . "." . $campiScadenza[5] . "= ?" . " AND " . $scadenzeTab . "." .$campiScadenza[6] . "= ?"
         );
         $stmt = $this->connection->prepare($query);
-        $stmt->bind_param("s", $Categoria);
+        $stmt->bind_param("ii", $codice_categoria, $codice_utente);
         $stmt->execute();
         $stmt->store_result();
         if ($stmt->num_rows > 0) {

@@ -300,10 +300,11 @@ $app->post('/visualizzascadenzepercategoria', function (Request $request, Respon
     $db = new DBUtenti();
 
     $requestData = $request->getParsedBody();//Dati richiesti dal servizio REST
-    $categoria = $requestData['nome_categoria'];
+    $codice_categoria = $requestData['cod_categoria'];
+    $codice_utente = $requestData ['cod_utente'];
 
 //Controllo la risposta dal DB e compilo i campi della risposta
-    $responseData['data'] = $db->visualizzaScadenzePerCategoria($categoria);
+    $responseData['data'] = $db->visualizzaScadenzePerCategoria($codice_categoria, $codice_utente);
     $contatore = (count($responseData));
     if ($responseData['data'] != null) {
         $responseData['contatore'] = $contatore;
