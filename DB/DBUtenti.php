@@ -488,6 +488,7 @@ class DBUtenti
         //query: SELECT scadenza.nome,scadenza.data_ricezione,scadenza.data_scadenza,scadenza.periodo, scadenza.importo,scadenza.confermato FROM scadenza WHERE scadenza.cod_categoria = "?" AND  scadenza.cod_utente=codice_utente"
         $query = (
             "SELECT " .
+            $scadenzeTab . "." . $campiScadenza[0] . ", " .
             $scadenzeTab . "." . $campiScadenza[1] . ", " .
             $scadenzeTab . "." . $campiScadenza[2] . ", " .
             $scadenzeTab . "." . $campiScadenza[3] . ", " .
@@ -502,11 +503,12 @@ class DBUtenti
         $stmt->execute();
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
-            $stmt->bind_result($nome, $data_ric, $data_scad, $periodo, $importo, $confermato);
+            $stmt->bind_result($codice_scadenza, $nome, $data_ric, $data_scad, $periodo, $importo, $confermato);
             $scadenza = array();
             while ($stmt->fetch()) { //Scansiono la risposta della query
                 $temp = array();
                 //Indicizzo con key i dati nell'array
+                $temp[$campiScadenza[0]] = $codice_scadenza;
                 $temp[$campiScadenza[1]] = $nome;
                 $temp[$campiScadenza[2]] = $data_ric;
                 $temp[$campiScadenza[3]] = $data_scad;
